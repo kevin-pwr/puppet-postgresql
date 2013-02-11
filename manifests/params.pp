@@ -97,26 +97,39 @@ class postgresql::params(
       $firewall_supported       = true
       $persist_firewall_command = '/sbin/iptables-save > /etc/sysconfig/iptables'
 
-      if $version == $::postgres_default_version {
-        $client_package_name = 'postgresql'
-        $server_package_name = 'postgresql-server'
-        $devel_package_name  = 'postgresql-devel'
-        $java_package_name   = 'postgresql-jdbc'
-        $service_name = 'postgresql'
-        $bindir       = '/usr/bin'
-        $datadir      = '/var/lib/pgsql/data'
-        $confdir      = $datadir
-      } else {
-        $version_parts       = split($version, '[.]')
-        $package_version     = "${version_parts[0]}${version_parts[1]}"
-        $client_package_name = "postgresql${package_version}"
-        $server_package_name = "postgresql${package_version}-server"
-        $devel_package_name  = "postgresql${package_version}-devel"
-        $java_package_name   = "postgresql${package_version}-jdbc"
-        $service_name = "postgresql-${version}"
-        $bindir       = "/usr/pgsql-${version}/bin"
-        $datadir      = "/var/lib/pgsql/${version}/data"
-        $confdir      = $datadir
+      case $version {
+        '9.2': {
+          $client_package_name = 'postgresql'
+          $server_package_name = 'postgresql-server'
+          $devel_package_name  = 'postgresql-devel'
+          $java_package_name   = 'postgresql-jdbc'
+          $service_name = 'postgresql'
+          $bindir       = '/usr/bin'
+          $datadir      = '/var/lib/pgsql9/data'
+          $confdir      = $datadir
+        }
+        $::postgres_default_version:{
+          $client_package_name = 'postgresql'
+          $server_package_name = 'postgresql-server'
+          $devel_package_name  = 'postgresql-devel'
+          $java_package_name   = 'postgresql-jdbc'
+          $service_name = 'postgresql'
+          $bindir       = '/usr/bin'
+          $datadir      = '/var/lib/pgsql/data'
+          $confdir      = $datadir
+        }
+        default: {
+          $version_parts       = split($version, '[.]')
+          $package_version     = "${version_parts[0]}${version_parts[1]}"
+          $client_package_name = "postgresql${package_version}"
+          $server_package_name = "postgresql${package_version}-server"
+          $devel_package_name  = "postgresql${package_version}-devel"
+          $java_package_name   = "postgresql${package_version}-jdbc"
+          $service_name = "postgresql-${version}"
+          $bindir       = "/usr/pgsql-${version}/bin"
+          $datadir      = "/var/lib/pgsql/${version}/data"
+          $confdir      = $datadir
+        }
       }
 
       $service_status = undef
